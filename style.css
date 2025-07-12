@@ -1,0 +1,348 @@
+body {
+    font-family: 'Segoe UI', 'BIZ UDPGothic', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    margin: 0;
+    color: #333;
+    line-height: 1.6;
+    /* overflow: hidden; */ /* スクロール可能にするためコメントアウト */
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 900px;
+    width: 90%;
+    min-height: 600px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 画面の共通スタイル */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 40px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+    background-color: #ffffff;
+    opacity: 0;
+    transition: opacity 3s ease-in-out; 
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Webkit系ブラウザ（Chrome, Safariなど）でスクロールバーを非表示にする */
+.screen::-webkit-scrollbar {
+    display: none;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    position: static;
+}
+
+/* 経験値表示エリア */
+#statusArea {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    text-align: left;
+    font-size: 0.9em;
+    color: #555;
+    z-index: 10;
+}
+
+#statusArea p {
+    margin: 3px 0;
+    font-size: 0.9em;
+}
+
+.exp-bar-container {
+    width: 150px;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.exp-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #8bc34a;
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+h2 {
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+h3 {
+    color: #4a657e;
+    font-size: 1.4em;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+#datetime {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.highlight-text {
+    font-size: 1.25em;
+    font-weight: bold;
+    color: #007bff;
+    margin: 10px 0;
+}
+
+.options button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.options button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.memo-section {
+    text-align: left;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.memo-section label {
+    display: block;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.memo-section textarea,
+.memo-section input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.copy-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.copy-btn:hover {
+    background-color: #218838;
+}
+
+.copy-confirmation {
+    font-size: 0.9em;
+    margin-top: 10px;
+    color: green;
+}
+
+.action-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    margin-top: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: #5a6268;
+}
+
+/* 特定のボタンの色調整 */
+#startTaskBtn {
+    background-color: #17a2b8;
+}
+#startTaskBtn:hover {
+    background-color: #138496;
+}
+
+#endTaskBtn {
+    background-color: #dc3545;
+}
+#endTaskBtn:hover {
+    background-color: #c82333;
+}
+
+#continueBtn {
+    background-color: #ffc107;
+    color: #333;
+}
+#continueBtn:hover {
+    background-color: #e0a800;
+}
+
+#finishBtn {
+    background-color: #6c757d;
+}
+#finishBtn:hover {
+    background-color: #5a6268;
+}
+
+/* 不安度ボタンのスタイル */
+.anxiety-level-selection {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #e6f7ff;
+    border-radius: 8px;
+    border: 1px solid #b3e0ff;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.anxiety-level-selection p {
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #007bff;
+    width: 100%;
+}
+
+.anxiety-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px; /* ボタン間のスペースを少し狭く */
+    width: 100%; /* 親要素に合わせる */
+    max-width: 600px; /* 例えば最大幅を設定して、中央に寄せる */
+    margin: 0 auto; /* 中央揃え */
+}
+
+.anxiety-btn {
+    background-color: #a0d911;
+    color: white;
+    border: none;
+    padding: 8px 0; /* 左右のパディングを0にして幅を詰める */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    /* flex-basis: calc(10% - 8px); */ /* 以前の計算を削除 */
+    width: calc(10% - 5px); /* 11個のボタンを横一列に並べるための計算 (gapを考慮) */
+    max-width: 50px; /* 各ボタンの最大幅を設定 */
+    min-width: 30px; /* 各ボタンの最小幅を設定 */
+    box-sizing: border-box;
+    text-align: center; /* ボタン内の数字を中央揃え */
+}
+
+
+.anxiety-btn:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+.anxiety-btn.selected {
+    border: 2px solid #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 86, 179, 0.4);
+    background-color: #007bff;
+}
+
+/* 不安度に応じたボタンの色調整 (不安度が高いほど赤く) */
+.anxiety-btn[data-value="0"] { background-color: #4CAF50; }
+.anxiety-btn[data-value="1"] { background-color: #66BB6A; }
+.anxiety-btn[data-value="2"] { background-color: #81C784; }
+.anxiety-btn[data-value="3"] { background-color: #9CCC65; }
+.anxiety-btn[data-value="4"] { background-color: #CDDC39; }
+.anxiety-btn[data-value="5"] { background-color: #FFEB3B; color: #333;}
+.anxiety-btn[data-value="6"] { background-color: #FFC107; color: #333;}
+.anxiety-btn[data-value="7"] { background-color: #FF9800; }
+.anxiety-btn[data-value="8"] { background-color: #FF5722; }
+.anxiety-btn[data-value="9"] { background-color: #F44336; }
+.anxiety-btn[data-value="10"] { background-color: #D32F2F; }
+
+/* 経験値・レベルアップメッセージ */
+.exp-message {
+    font-weight: bold;
+    margin-top: 15px;
+    color: #007bff;
+}
+
+.level-message {
+    font-weight: bold;
+    margin-top: 5px;
+    color: #ff5722;
+}
+
+/* 次へボタンのスタイル */
+.next-btn {
+    margin-top: 30px;
+    background-color: #007bff;
+}
+.next-btn:hover {
+    background-color: #0056b3;
+}

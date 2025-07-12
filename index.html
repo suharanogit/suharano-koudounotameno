@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日の儀式</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="statusArea">
+            <p>レベル: <span id="currentLevel">1</span></p>
+            <p>経験値: <span id="currentExp">0</span> / <span id="nextLevelExp">100</span></p>
+            <div class="exp-bar-container">
+                <div id="expBar" class="exp-bar"></div>
+            </div>
+        </div>
+
+        <div id="greetingScreen" class="screen active">
+            <h1 id="greeting"></h1>
+            <p id="datetime"></p>
+            <button id="toGoalBtn" class="action-btn next-btn">次へ</button>
+        </div>
+
+        <div id="goalScreen" class="screen">
+            <h2>2026/06/24までの目標として、</h2>
+            <p class="highlight-text">集中力を向上させることを挙げています。</p>
+            <h3>集中力には速さ、深さ、長さの3つがあるので、</h3>
+            <p class="highlight-text">2025/10/24までは「速さ」のトレーニングを行います。</p>
+            <button id="toPreTaskBtnFromGoal" class="action-btn next-btn">次へ</button>
+        </div>
+
+        <div id="preTaskScreen" class="screen">
+            <h2>これから仕事を始める前の儀式を行います。</h2>
+            <p>次の質問に答え、ワードに貼り付ける所から始めましょう。</p>
+            <div class="memo-section">
+                <label for="memoTask">取り組むこと:</label>
+                <textarea id="memoTask" placeholder="例: 資料作成、メール返信" rows="2"></textarea>
+
+                <label for="memoTime">予測時間:</label>
+                <input type="text" id="memoTime" placeholder="例: 2時間、午前中いっぱい">
+
+                <label for="memoBarrier">考えられる障壁:</label>
+                <textarea id="memoBarrier" placeholder="例: 集中力切れ、割り込み" rows="2"></textarea>
+
+                <label for="memoMeasure">対策:</label>
+                <textarea id="memoMeasure" placeholder="例: ポモドーロタイマー、通知オフ" rows="2"></textarea>
+            </div>
+            <div class="anxiety-level-selection">
+                <p>このタスクに抱く不安は？ (0: 全くない ～ 10: 最大の不安)</p>
+                <div class="anxiety-buttons-container">
+                    </div>
+                <input type="hidden" id="selectedAnxietyLevel" value=""> </div> 
+
+            <button id="copyPreTaskMemoBtn" class="copy-btn">メモをコピー</button>
+            <p id="preTaskCopyConfirmation" class="copy-confirmation" style="display: none;">コピーしました！</p>
+            <button id="startTaskBtn" class="action-btn">タスク開始</button>
+        </div>
+
+        <div id="inTaskScreen" class="screen">
+            <h2>タスクに集中しましょう！</h2>
+            <p>タスクが終わったら、以下のボタンを押してください。</p>
+            <button id="endTaskBtn" class="action-btn">タスク終了</button>
+        </div>
+
+        <div id="postTaskScreen" class="screen">
+            <h2>お疲れ様です。フィードバックを記述してください。</h2>
+            <div class="memo-section">
+                <label for="feedbackMemo">フィードバック（自由記述）:</label>
+                <textarea id="feedbackMemo" placeholder="今日のタスクの振り返りや気づきをメモしましょう。" rows="5"></textarea>
+                <button id="copyFeedbackMemoBtn" class="copy-btn">フィードバックをコピー</button>
+                <p id="postTaskCopyConfirmation" class="copy-confirmation" style="display: none;">コピーしました！</p>
+            </div>
+            <p id="expGainMessage" class="exp-message"></p>
+            <p id="levelUpTransitionMessage" class="level-message"></p>
+
+            <div class="options">
+                <button id="continueBtn" class="action-btn">別のタスクを行う</button>
+                <button id="finishBtn" class="action-btn">アプリを終了する</button>
+            </div>
+        </div>
+
+        <div id="levelUpScreen" class="screen">
+            <h2>✨ レベルアップ！ ✨</h2>
+            <p id="levelUpDisplayMessage" class="highlight-text"></p>
+            <p>新たなレベルでの挑戦があなたを待っています！</p>
+            <button id="toPostTaskFromLevelUpBtn" class="action-btn next-btn">次へ</button>
+        </div>
+
+        <div id="farewellScreen" class="screen">
+            <h2>お疲れさまでした！</h2>
+            <p>今日も一日、よく頑張りましたね。</p>
+            <p>またのご利用をお待ちしております。</p>
+            <button id="backToStartBtn" class="action-btn">始めに戻る</button> </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
