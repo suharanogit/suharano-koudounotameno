@@ -5,100 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>今日の儀式</title>
     <link rel="stylesheet" href="style.css">
-
     <link rel="manifest" href="manifest.json">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="儀式アプリ">
+    <link rel="apple-touch-icon" href="You are free.png">
+    <link rel="icon" href="You are free.png" type="image/png">
 </head>
 <body>
+    <div id="statusArea">
+        <p>レベル: <span id="currentLevel">1</span></p>
+        <p>経験値: <span id="currentExp">0</span> / <span id="nextLevelExp">100</span></p>
+        <div class="exp-bar-container">
+            <div id="expBar" class="exp-bar"></div>
+        </div>
+    </div>
+
+    <button id="global-back-button" class="action-btn back-btn">戻る</button>
+
+    <div id="addEventModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h2>新しいイベントを追加</h2>
+            <div class="memo-section">
+                <label for="modalEventName">イベント名:</label>
+                <input type="text" id="modalEventName" placeholder="例: 読書、資料作成">
+                <label for="modalEventDeadline">期限 (任意):</label>
+                <input type="date" id="modalEventDeadline">
+                <label for="modalEventAmount">量/目標 (任意):</label>
+                <input type="text" id="modalEventAmount" placeholder="例: 100ページ、2時間">
+            </div>
+            <button id="saveEventBtn" class="action-btn">保存</button>
+        </div>
+    </div>
+
+    <div id="recordCompletedAmountModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button close-record-modal">×</span>
+            <h2>完了した量を記録</h2>
+            <p id="completedAmountEventNameDisplay" class="highlight-text"></p>
+            <div class="memo-section">
+                <label for="modalCompletedAmount">今回完了した量:</label>
+                <input type="text" id="modalCompletedAmount" placeholder="例: 10分、2ページ">
+            </div>
+            <button id="saveCompletedAmountBtn" class="action-btn">記録して次へ</button>
+        </div>
+    </div>
+
     <div class="container">
-        <div id="statusArea">
-            <p>レベル: <span id="currentLevel">1</span></p>
-            <p>経験値: <span id="currentExp">0</span> / <span id="nextLevelExp">100</span></p>
-            <div class="exp-bar-container">
-                <div id="expBar" class="exp-bar"></div>
+        <div id="greetingScreen" class="screen active">
+            <p id="datetime"></p>
+            <h1 id="greeting"></h1>
+        </div>
+
+        <div id="statusSelectionScreen" class="screen">
+            <h2>今の状況を教えてください！</h2>
+            <div class="options-grid">
+                <button id="statusMorningBtn" class="action-btn">朝、起きました...</button>
+                <button id="statusEventBtn" class="action-btn">イベントを進めたい！</button>
+                <button id="statusAnxietyBtn" class="action-btn">不安、ストレス、退屈から開いちゃった。</button>
+                <button id="statusOtherAppBtn" class="action-btn">別アプリにアクセスしたい</button>
+                <button id="statusRestBtn" class="action-btn">ちょっと休憩を取りたい！</button>
             </div>
         </div>
 
-        <div id="greetingScreen" class="screen active">
-            <h1 id="greeting"></h1>
-            <p id="datetime"></p>
-            <button id="toGoalBtn" class="action-btn next-btn">次へ</button>
-        </div>
+        <div id="meaningConfirmationScreen" class="screen">
+            <h2>この世界について、確認しましょう！</h2>
+            <p>あなたの目の前にある現実は、とても冷たく残酷で、絶望が蔓延しています。</p>
+            <p>「生きる意味」「本当の自分」「幸せになる方法」は存在しないし、きっといつ死んでもいいでしょう。</p>
+            <p>それでも、俺がこの世界にまだいたいと感じるのは感動する瞬間があるからです。</p>
+            <p>感動という一瞬の電気信号を得るために私は生きています。もったいないから生きているだけです。</p>
+            <p>でも、生きていると希望が湧いてきて、またすぐその希望に疑いをかけてしまいます。</p>
+            <p>だから、生きる意味を見失わないために、価値観を常に意識しておきましょう。</p>
+            <button id="toValuesBtn" class="action-btn next-btn">次へ</button>
+            </div>
 
-        <div id="goalScreen" class="screen">
-            <h2>2026/06/24までの目標として、</h2>
-            <p class="highlight-text">集中力を向上させることを挙げています。</p>
-            <h3>集中力には速さ、深さ、長さの3つがあるので、</h3>
-            <p class="highlight-text">2025/10/24までは「速さ」のトレーニングを行います。</p>
-            <button id="toPreTaskBtnFromGoal" class="action-btn next-btn">次へ</button>
-        </div>
+        <div id="valuesConfirmationScreen" class="screen">
+            <h2>価値観を確認しましょう</h2>
+            <p>私の生きる意味は、感動するためでした。</p>
+            <p>では、感動するためにどのような価値観、行動指針を掲げればよいでしょうか</p>
+            <p>価値観は、「想像を超えること」</p>
+            <br>そのための思考指針を挙げていきましょう！
+            <p>1「感動とは、感情の差である」</p>
+            <p>2「ネガティブな状態は感動の近くにいる証拠であり、どのようなネガティブを選ぶかは自由である」</p>
+            <p>3「感動は、現実離れした妄想、期待をすると離れていく」</p>
+            <p>4「そのため、現実的に想像し、それを超えていくことが重要である」</p>
+            <br>
+            <p>さて！それではこんなしょうもないことはいったん置いて、困難な日々に戻っていきましょう！</p>
+            <p>困難な日々を生き抜いてさえいれば、かならず人生から小さな贈り物が届きます！</p>
+            <p>私は私の人生を愛しています！いってらっしゃい！</p>
+            <button id="toAmbiguousGoalBtn" class="action-btn next-btn">次へ</button>
+            </div>
+
+        <div id="ambiguousGoalScreen" class="screen">
+            <h2>方向性を確認しましょう</h2>
+            <div class="options-grid">
+                <div class="goal-item">
+                    <h3>① 深い内面を持つこと</h3>
+                </div>
+                <div class="goal-item">
+                    <h3>② 趣味で没頭する時間を持つこと</h3>
+                </div>
+                <div class="goal-item">
+                    <h3>③ 高級ホテルのような環境を作ること</h3>
+                </div>
+                <div class="goal-item">
+                    <h3>④ 充実した人間関係を持つこと</h3>
+                </div>
+                <div class="goal-item">
+                    <h3>⑤ お金が付いてくるような実力を持つこと</h3>
+                </div>
+            </div>
+            <button id="toWeeklyProgressFromAmbiguousBtn" class="action-btn next-btn">今週の目標へ</button>
+            </div>
+
+        <div id="weeklyProgressScreen" class="screen">
+            <h2>今週の目標とイベント</h2>
+            
+            <h3>イベントリスト</h3>
+            <div id="eventListContainer">
+            </div>
+
+            <button id="addNewEventBtn" class="action-btn">
+                <span class="icon">＋</span>新しいイベントを追加
+            </button>
+
+            <div class="weekly-actions">
+                <button id="toPreTaskBtnFromWeekly" class="action-btn next-btn">選択したイベントを開始</button>
+                <button id="viewProgressBtn" class="action-btn">詳細進捗を確認</button>
+            </div>
+            </div>
 
         <div id="preTaskScreen" class="screen">
-            <h2>これから仕事を始める前の儀式を行います。</h2>
-            <p>次の質問に答え、ワードに貼り付ける所から始めましょう。</p>
+            <h2>タスク前儀式</h2>
+            <p>これから行うイベントについて確認しましょう。</p>
             <div class="memo-section">
-                <label for="memoTask">取り組むこと:</label>
-                <textarea id="memoTask" placeholder="例: 資料作成、メール返信" rows="2"></textarea>
-
-                <label for="memoTime">予測時間:</label>
-                <input type="text" id="memoTime" placeholder="例: 2時間、午前中いっぱい">
-
-                <label for="memoBarrier">考えられる障壁:</label>
-                <textarea id="memoBarrier" placeholder="例: 集中力切れ、割り込み" rows="2"></textarea>
-
-                <label for="memoMeasure">対策:</label>
-                <textarea id="memoMeasure" placeholder="例: ポモドーロタイマー、通知オフ" rows="2"></textarea>
+                <label for="selectedEventDisplay">イベント名:</label>
+                <input type="text" id="selectedEventDisplay" readonly>
+                <label for="memoTime">予測時間 (分):</label>
+                <input type="number" id="memoTime" placeholder="例: 30, 60">
             </div>
             <div class="anxiety-level-selection">
-                <p>このタスクに抱く不安は？ (0: 全くない ～ 10: 最大の不安)</p>
-                <div class="anxiety-buttons-container">
-                    </div>
-                <input type="hidden" id="selectedAnxietyLevel" value=""> </div> 
-
-            <button id="copyPreTaskMemoBtn" class="copy-btn">メモをコピー</button>
-            <p id="preTaskCopyConfirmation" class="copy-confirmation" style="display: none;">コピーしました！</p>
-            <button id="startTaskBtn" class="action-btn">タスク開始</button>
-        </div>
+                <p>このイベントに対する抵抗感はどれくらいですか？ (0:全くない 〜 10:非常に強い)</p>
+                <select id="anxietyLevelSelect"></select>
+            </div>
+            <button id="startTaskBtn" class="action-btn next-btn">タスク開始</button>
+            </div>
 
         <div id="inTaskScreen" class="screen">
-            <h2>タスクに集中しましょう！</h2>
-            <p>タスクが終わったら、以下のボタンを押してください。</p>
-            <button id="endTaskBtn" class="action-btn">タスク終了</button>
-        </div>
-
-        <div id="postTaskScreen" class="screen">
-            <h2>お疲れ様です。フィードバックを記述してください。</h2>
-            <div class="memo-section">
-                <label for="feedbackMemo">フィードバック（自由記述）:</label>
-                <textarea id="feedbackMemo" placeholder="今日のタスクの振り返りや気づきをメモしましょう。" rows="5"></textarea>
-                <button id="copyFeedbackMemoBtn" class="copy-btn">フィードバックをコピー</button>
-                <p id="postTaskCopyConfirmation" class="copy-confirmation" style="display: none;">コピーしました！</p>
+            <h2>タスク実行中！</h2>
+            <p>現在実行中のイベント: <span id="currentTaskDisplay" class="highlight-text"></span></p>
+            <p>集中して取り組みましょう！</p>
+            <p class="elapsed-time-display">経過時間: <span id="elapsedTimeCounter">00:00:00</span></p>
+            <button id="endTaskBtn" class="action-btn next-btn">タסק終了</button>
             </div>
-            <p id="expGainMessage" class="exp-message"></p>
-            <p id="levelUpTransitionMessage" class="level-message"></p>
 
-            <div class="options">
-                <button id="continueBtn" class="action-btn">別のタスクを行う</button>
-                <button id="finishBtn" class="action-btn">アプリを終了する</button>
+        <div id="progressAnimationScreen" class="screen">
+            <h2>お疲れ様です！</h2>
+            <p id="progressAnimationEventName" class="highlight-text"></p>
+            <div class="progress-animation-container">
+                <div id="progressAnimationBar" class="progress-bar"></div>
+                <span id="progressAnimationPercentage" class="progress-percentage"></span>
             </div>
-        </div>
+            <p id="progressAnimationAmountText" class="detail-text"></p>
+            <p id="expGainMessage" class="detail-text"></p>
+            <div class="animation-actions">
+                <button id="toRestBtnFromAnimation" class="action-btn">少し休憩する</button>
+                <button id="toWeeklyProgressBtnFromAnimation" class="action-btn next-btn">目標を確認する</button>
+            </div>
+            </div>
 
         <div id="levelUpScreen" class="screen">
-            <h2>✨ レベルアップ！ ✨</h2>
+            <h2>🎉レベルアップ！🎉</h2>
+            <p id="levelUpTransitionMessage">おめでとうございます！</p>
             <p id="levelUpDisplayMessage" class="highlight-text"></p>
-            <p>新たなレベルでの挑戦があなたを待っています！</p>
-            <button id="toPostTaskFromLevelUpBtn" class="action-btn next-btn">次へ</button>
-        </div>
+            <p>さらに成長するために、次の行動を考えましょう。</p>
+            <div class="animation-actions">
+                <button id="levelUpToRestBtn" class="action-btn">少し休憩する</button>
+                <button id="levelUpToWeeklyProgressBtn" class="action-btn next-btn">目標を確認する</button>
+            </div>
+            </div>
+        
+        <div id="restScreen" class="screen">
+            <h2>休憩中...</h2>
+            <p>心と体を休めましょう。</p>
+            <p>少しの間、画面から離れてリラックスしてください。</p>
+            <button id="toWeeklyProgressBtnFromRest" class="action-btn next-btn">目標を確認する</button>
+            </div>
 
-        <div id="farewellScreen" class="screen">
-            <h2>お疲れさまでした！</h2>
-            <p>今日も一日、よく頑張りましたね。</p>
-            <p>またのご利用をお待ちしております。</p>
-            <button id="backToStartBtn" class="action-btn">始めに戻る</button> </div>
+        <div id="anxietyConsultationScreen" class="screen">
+            <h2>AIに相談してみましょう</h2>
+            <p>PCでのご利用がおすすめです。</p>
+            <p style="margin-top: 30px;">以下のリンクからChatGPTアプリを開くことができます。</p>
+            <a href="chatgpt://" class="action-btn next-btn" id="openChatgptAppBtn">ChatGPTアプリを開く</a>
+            </div>
+
+        <div id="otherAppAccessScreen" class="screen">
+            <h2>他のアプリへアクセス</h2>
+            <p>何にアクセスしますか？</p>
+            <div class="options-grid" id="appTypeSelectionGrid">
+                <button id="accessResearchBtn" class="action-btn">調べものをする</button>
+                <button id="accessOtherAppBtn" class="action-btn">他のアプリをいじる</button>
+            </div>
+
+            <div id="researchApps" class="options-grid" style="display: none;">
+                <h3>調べものアプリ (調べものに集中しましょう)</h3>
+                <a href="https://www.google.com/" target="_blank" rel="noopener noreferrer" class="action-btn">Google検索</a>
+                <a href="https://ja.wikipedia.org/" target="_blank" rel="noopener noreferrer" class="action-btn">Wikipedia</a>
+            </div>
+
+            <div id="otherApps" class="options-grid" style="display: none;">
+                <h3>その他のアプリ (15分後に通知します)</h3>
+                <a href="http://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="action-btn">YouTube (Web/App)</a>
+                <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" class="action-btn">X (旧Twitter) (Web)</a>
+                <a href="https://maps.app.goo.gl/YourLocation" target="_blank" rel="noopener noreferrer" class="action-btn">Google Maps (App)</a>
+                <a href="line://msg/text/Hello%20from%20MyRitualApp!" class="action-btn">LINE (App)</a>
+            </div>
+            </div>
+
+        <div id="progressConfirmationScreen" class="screen">
+            <h2>週間進捗レポート</h2>
+            <p>今週完了したイベント: <span id="completedCount">0</span> 件</p>
+            <p>獲得経験値合計: <span id="totalExpDisplay">0</span> Exp</p>
+
+            <h3>完了イベント履歴</h3>
+            <div class="completed-events-list-container">
+                <div id="completedEventsList">
+                </div>
+            </div>
+            </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
