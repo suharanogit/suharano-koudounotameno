@@ -34,14 +34,12 @@ body {
 /* 経験値表示エリア - 固定ではなく、画面コンテンツの一部としてスクロール */
 /* IDからクラス名に変更 */
 .status-area {
-    /* position: fixed; top; left; z-index; !important はすべて削除 */
     text-align: left;
     font-size: 0.9em;
     color: #555;
     background-color: rgba(255, 255, 255, 0.95);
     padding: 10px 16px;
     border-radius: 12px;
-    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */ /* 影を削除 */
     border: 1px solid #ccc; /* 枠線を追加 */
     width: 230px;
     margin-top: 20px; /* 画面上部からの余白 */
@@ -51,7 +49,6 @@ body {
 }
 .status-area p {
     margin: 3px 0;
-    /* text-shadow: 1px 1px white; */ /* もしあれば、これも削除またはコメントアウト */
 }
 
 .exp-bar-container {
@@ -74,6 +71,8 @@ body {
 .screen {
     position: absolute;
     top: 0;
+    /* 画面が左右からスライドイン/アウトするためにtranslateXを設定 */
+    transform: translateX(100%); /* 非アクティブな画面は右外側に配置 */
     left: 0;
     width: 100%;
     height: 100%;
@@ -85,7 +84,8 @@ body {
 
     box-sizing: border-box;
     opacity: 0;
-    transition: opacity 0.7s ease-in-out, visibility 0.7s ease-in-out;
+    /* スライドとフェードのトランジションを両方設定 */
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out, visibility 0.5s ease-in-out;
     pointer-events: none;
     background-color: #ffffff;
     
@@ -93,7 +93,6 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 
-    /* global-back-buttonが固定ではなくなったので、padding-bottomを調整 */
     padding: 20px 40px; /* 上下左右の余白を一般的な値に */
     
     z-index: 0;
@@ -107,10 +106,43 @@ body {
 .screen.active {
     opacity: 1;
     pointer-events: auto;
-    position: absolute;
+    transform: translateX(0); /* アクティブな画面は中央に配置 */
     z-index: 1;
     visibility: visible;
 }
+
+/* 戻るスワイプ用 */
+.screen.active.slide-right-exit {
+    transform: translateX(100%); /* 右にスライドアウト */
+    opacity: 0;
+}
+
+.screen.slide-right-enter {
+    transform: translateX(-100%); /* 左外側からスライドイン */
+    opacity: 0;
+}
+
+.screen.slide-right-enter.active {
+    transform: translateX(0); /* 左外側から中央へ */
+    opacity: 1;
+}
+
+/* 進むスワイプ用 (必要であれば) */
+.screen.active.slide-left-exit {
+    transform: translateX(-100%); /* 左にスライドアウト */
+    opacity: 0;
+}
+
+.screen.slide-left-enter {
+    transform: translateX(100%); /* 右外側からスライドイン */
+    opacity: 0;
+}
+
+.screen.slide-left-enter.active {
+    transform: translateX(0); /* 右外側から中央へ */
+    opacity: 1;
+}
+
 
 h1 {
     color: #2c3e50;
