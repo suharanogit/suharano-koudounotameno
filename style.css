@@ -32,7 +32,6 @@ body {
 }
 
 /* 経験値表示エリア - 固定ではなく、画面コンテンツの一部としてスクロール */
-/* IDからクラス名に変更 */
 .status-area {
     text-align: left;
     font-size: 0.9em;
@@ -71,8 +70,6 @@ body {
 .screen {
     position: absolute;
     top: 0;
-    /* 画面が左右からスライドイン/アウトするためにtranslateXを設定 */
-    transform: translateX(100%); /* 非アクティブな画面は右外側に配置 */
     left: 0;
     width: 100%;
     height: 100%;
@@ -84,8 +81,8 @@ body {
 
     box-sizing: border-box;
     opacity: 0;
-    /* スライドとフェードのトランジションを両方設定 */
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out, visibility 0.5s ease-in-out;
+    /* シンプルなフェードトランジション */
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-in-out;
     pointer-events: none;
     background-color: #ffffff;
     
@@ -97,6 +94,7 @@ body {
     
     z-index: 0;
     visibility: hidden;
+    transform: translateX(0); /* スワイプアニメーションがなくなったので、デフォルトは0 */
 }
 
 .screen::-webkit-scrollbar {
@@ -106,43 +104,24 @@ body {
 .screen.active {
     opacity: 1;
     pointer-events: auto;
-    transform: translateX(0); /* アクティブな画面は中央に配置 */
     z-index: 1;
     visibility: visible;
 }
 
-/* 戻るスワイプ用 */
-.screen.active.slide-right-exit {
-    transform: translateX(100%); /* 右にスライドアウト */
-    opacity: 0;
-}
-
-.screen.slide-right-enter {
-    transform: translateX(-100%); /* 左外側からスライドイン */
-    opacity: 0;
-}
-
-.screen.slide-right-enter.active {
-    transform: translateX(0); /* 左外側から中央へ */
-    opacity: 1;
-}
-
-/* 進むスワイプ用 (必要であれば) */
-.screen.active.slide-left-exit {
-    transform: translateX(-100%); /* 左にスライドアウト */
-    opacity: 0;
-}
-
-.screen.slide-left-enter {
-    transform: translateX(100%); /* 右外側からスライドイン */
-    opacity: 0;
-}
-
+/* スワイプアニメーション関連のクラスは全て削除 */
+/* .screen.active.slide-right-exit,
+.screen.slide-right-enter,
+.screen.slide-right-enter.active,
+.screen.active.slide-left-exit,
+.screen.slide-left-enter,
 .screen.slide-left-enter.active {
-    transform: translateX(0); /* 右外側から中央へ */
-    opacity: 1;
-}
+    これらは全て削除
+} */
 
+/* 初期表示時のトランジションを無効にするクラス (JSで制御 - 今回のJSでは使用されなくなりますが、残しておく) */
+.no-transition {
+    transition: none !important;
+}
 
 h1 {
     color: #2c3e50;
@@ -610,7 +589,6 @@ p {
     flex-shrink: 0;
 }
 
-
 /* --- モーダルのスタイル (既存と共通) --- */
 .modal {
     display: none;
@@ -905,6 +883,33 @@ p {
     flex-shrink: 0;
 }
 
+/* --- 各画面内の「戻る」ボタンのスタイル --- */
+.action-btn.back-btn {
+    background-color: #6c757d; /* 灰色 */
+    color: white;
+    padding: 12px 25px; /* 他のボタンに合わせるため調整 */
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em; /* 他のボタンに合わせるため調整 */
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    /* 上のボタンとの間隔調整 */
+    margin-top: 30px; /* ここを調整してください（例: 20px, 30px, 40pxなど） */
+    width: auto; /* 他のボタンの幅に合わせる場合は、必要に応じて width: XX%; や max-width: XXXpx; を追加 */
+}
+
+.action-btn.back-btn:hover {
+    background-color: #5a6268;
+}
+
+/* margin-top-auto は .action-btn.back-btn 内で指定されるため、HTMLのクラス指定は不要です */
+/* もしHTMLに残っている場合は、CSSで上書きするかHTMLから削除してください */
+/* .margin-top-auto {
+    margin-top: auto;
+} */
+
+
 /* --- レスポンシブデザインの調整 (スマートフォン向け) --- */
 @media (max-width: 768px) {
     .container {
@@ -914,7 +919,7 @@ p {
     }
 
     .screen {
-        padding: 15px 20px; /* 下部パディングは固定ボタン考慮なし */
+        padding: 15px 20px; 
     }
 
     h1 {
@@ -1031,7 +1036,7 @@ p {
     }
 
     .screen {
-        padding: 10px 15px; /* 下部パディングは固定ボタン考慮なし */
+        padding: 10px 15px; 
     }
 
     h1 {

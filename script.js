@@ -111,13 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let screenHistory = [];
     let currentScreenId = ''; // 現在表示されている画面のID
 
-    // スワイプ検出のための変数
-    let touchStartX = 0;
-    let touchEndX = 0;
-    let isSwiping = false; // スワイプ中かどうかのフラグ
-    const swipeThreshold = 70; // スワイプと認識する最小距離 (px)
-    const container = document.querySelector('.container'); // スワイプイベントリスナーの対象
-
     try {
         const storedEvents = JSON.parse(localStorage.getItem('userEvents'));
         if (Array.isArray(storedEvents)) {
@@ -151,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * 指定された画面を表示し、他の画面を非表示にする
      * @param {string} screenId - 表示する画面のID (screensオブジェクトのキー)
-     * @param {string} animationType - 'none', 'slide-right' (戻る), 'slide-left' (進む)
+     * @param {boolean} isBackAction - 戻るボタンによる遷移かどうか (履歴に追加しないため)
      */
-    function showScreen(screenId, animationType = 'none') {
+    function showScreen(screenId, isBackAction = false) {
         const currentActiveScreen = document.querySelector('.screen.active');
         const targetScreen = screens[screenId];
 
@@ -163,82 +156,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 同じ画面への遷移なら何もしない
-        if (targetScreen === currentActiveScreen && animationType === 'none') {
+        if (targetScreen === currentActiveScreen) {
             return;
         }
 
-        // 現在の画面を非アクティブにする準備
         if (currentActiveScreen) {
-            // アニメーション用にクラスを追加
-            if (animationType === 'slide-right') { // 戻るアニメーション
-                currentActiveScreen.classList.add('slide-right-exit');
-            } else if (animationType === 'slide-left') { // 進むアニメーション
-                currentActiveScreen.classList.add('slide-left-exit');
-            }
             currentActiveScreen.classList.remove('active');
             currentActiveScreen.style.pointerEvents = 'none'; // クリック無効化
+            currentActiveScreen.style.opacity = '0';
+            currentActiveScreen.style.visibility = 'hidden';
+            currentActiveScreen.style.transform = ''; 
         }
 
-        // 新しい画面をアクティブにする準備
-        // まず新しい画面の位置を調整
-        if (animationType === 'slide-right') { // 戻るアニメーション（左から入ってくる）
-            targetScreen.classList.add('slide-right-enter');
-        } else if (animationType === 'slide-left') { // 進むアニメーション（右から入ってくる）
-            targetScreen.classList.add('slide-left-enter');
-        } else { // 通常遷移
-            targetScreen.style.transform = 'translateX(0)'; // 初期位置にリセット
-        }
-        targetScreen.style.opacity = '0'; // アニメーション開始のため一旦非表示
-        targetScreen.style.visibility = 'visible'; // 表示可能にする
+        // 新しい画面を表示
+        targetScreen.style.transition = ''; // CSSで設定されたtransitionを有効にする
+        targetScreen.style.opacity = '1';
+        targetScreen.style.visibility = 'visible';
+        targetScreen.classList.add('active'); // activeクラスでopacityを制御
+        targetScreen.style.pointerEvents = 'auto'; // クリック有効化
 
-        // DOMの再描画を待ってからアニメーションを開始
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                targetScreen.classList.add('active'); // activeクラスを付与してアニメーションを開始
-                // アニメーションタイプに応じてクラスを削除 (アニメーションが完了する前に削除すると問題がある場合があるためsetTimeoutを使用)
-                if (animationType === 'slide-right') {
-                    targetScreen.classList.remove('slide-right-enter');
-                } else if (animationType === 'slide-left') {
-                    targetScreen.classList.remove('slide-left-enter');
-                }
-            });
-        });
-
-        // アニメーション完了後にクリーンアップ
-        setTimeout(() => {
-            if (currentActiveScreen) {
-                currentActiveScreen.classList.remove('active', 'slide-right-exit', 'slide-left-exit');
-                currentActiveScreen.style.visibility = 'hidden';
-                currentActiveScreen.style.transform = ''; // transformをリセット
-            }
-            
-            // 全てのscreenからslide-x-enterクラスを削除
-            Object.values(screens).forEach(screen => {
-                screen.classList.remove('slide-right-enter', 'slide-left-enter');
-            });
-
-            // 画面が切り替わったときに最上部にスクロール
-            targetScreen.scrollTop = 0;
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-
-            // 経験値・レベルの表示を更新 (新しい画面に切り替わった後に表示を更新するため)
-            updateUserInfo();
-
-        }, 500); // CSS transitionの時間に合わせる (0.5s = 500ms)
+        // 画面が切り替わったときに最上部にスクロール
+        targetScreen.scrollTop = 0;
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
 
         // ★履歴管理ロジック
-        // 'slide-right' は戻るアクションなので履歴に追加しない
-        if (animationType !== 'slide-right') {
+        if (!isBackAction) { // 戻るアクションでない場合のみ履歴に追加
             if (currentScreenId && currentScreenId !== screenId) { // 同じ画面への遷移や初回起動時以外
                 screenHistory.push(currentScreenId);
             }
-        } else {
-            // 戻るアニメーションの場合、履歴はすでに pop されている
         }
         currentScreenId = screenId; // 現在の画面を更新
 
-        // status-areaの表示制御は常にblockにする
+        // status-areaの表示制御
         Object.values(screens).forEach(screen => {
             const statusArea = screen.querySelector('.status-area');
             if (statusArea) statusArea.style.display = 'none'; // いったん全て非表示に
@@ -272,6 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (researchAppsSection) researchAppsSection.style.display = 'none';
             if (otherAppsSection) otherAppsSection.style.display = 'none';
         }
+
+        // 画面切り替え時に経験値表示を更新
+        updateUserInfo();
     }
 
     /**
@@ -367,23 +320,84 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUserInfo() {
         const nextExpThreshold = getExpNeededForNextLevel(userLevel);
 
-        // 現在アクティブな画面の status-area を取得
-        const activeScreen = document.querySelector('.screen.active');
-        if (activeScreen) {
-            const currentLevelSpan = activeScreen.querySelector('.current-level');
-            const currentExpSpan = activeScreen.querySelector('.current-exp');
-            const nextLevelExpSpan = activeScreen.querySelector('.next-level-exp');
-            const expBar = activeScreen.querySelector('.exp-bar');
+        // 各画面の status-area 内の要素をIDで直接取得し、更新
+        // showScreenの後に呼び出されるため、全ての要素を更新しても問題ない
+        const levelSpans = [
+            document.getElementById('greeting-current-level'),
+            document.getElementById('status-current-level'),
+            document.getElementById('meaning-current-level'),
+            document.getElementById('values-current-level'),
+            document.getElementById('ambiguous-current-level'),
+            document.getElementById('weekly-current-level'),
+            document.getElementById('pretask-current-level'),
+            document.getElementById('intask-current-level'),
+            document.getElementById('progress-animation-current-level'),
+            document.getElementById('level-up-current-level'),
+            document.getElementById('rest-current-level'),
+            document.getElementById('anxiety-current-level'),
+            document.getElementById('otherapp-current-level'),
+            document.getElementById('progress-conf-current-level')
+        ];
+        const expSpans = [
+            document.getElementById('greeting-current-exp'),
+            document.getElementById('status-current-exp'),
+            document.getElementById('meaning-current-exp'),
+            document.getElementById('values-current-exp'),
+            document.getElementById('ambiguous-current-exp'),
+            document.getElementById('weekly-current-exp'),
+            document.getElementById('pretask-current-exp'),
+            document.getElementById('intask-current-exp'),
+            document.getElementById('progress-animation-current-exp'),
+            document.getElementById('level-up-current-exp'),
+            document.getElementById('rest-current-exp'),
+            document.getElementById('anxiety-current-exp'),
+            document.getElementById('otherapp-current-exp'),
+            document.getElementById('progress-conf-current-exp')
+        ];
+        const nextExpSpans = [
+            document.getElementById('greeting-next-level-exp'),
+            document.getElementById('status-next-level-exp'),
+            document.getElementById('meaning-next-level-exp'),
+            document.getElementById('values-next-level-exp'),
+            document.getElementById('ambiguous-next-level-exp'),
+            document.getElementById('weekly-next-level-exp'),
+            document.getElementById('pretask-next-level-exp'),
+            document.getElementById('intask-next-level-exp'),
+            document.getElementById('progress-animation-next-level-exp'),
+            document.getElementById('level-up-next-level-exp'),
+            document.getElementById('rest-next-level-exp'),
+            document.getElementById('anxiety-next-level-exp'),
+            document.getElementById('otherapp-next-level-exp'),
+            document.getElementById('progress-conf-next-level-exp')
+        ];
+        const expBars = [
+            document.getElementById('greeting-exp-bar'),
+            document.getElementById('status-exp-bar'),
+            document.getElementById('meaning-exp-bar'),
+            document.getElementById('values-exp-bar'),
+            document.getElementById('ambiguous-exp-bar'),
+            document.getElementById('weekly-exp-bar'),
+            document.getElementById('pretask-exp-bar'),
+            document.getElementById('intask-exp-bar'),
+            document.getElementById('progress-animation-exp-bar'),
+            document.getElementById('level-up-exp-bar'),
+            document.getElementById('rest-exp-bar'),
+            document.getElementById('anxiety-exp-bar'),
+            document.getElementById('otherapp-exp-bar'),
+            document.getElementById('progress-conf-exp-bar')
+        ];
 
-            if (currentLevelSpan) currentLevelSpan.textContent = userLevel;
-            if (currentExpSpan) currentExpSpan.textContent = userExp;
-            if (nextLevelExpSpan) nextLevelExpSpan.textContent = nextExpThreshold;
+        // 各spanとexp-barを更新
+        levelSpans.forEach(span => { if (span) span.textContent = userLevel; });
+        expSpans.forEach(span => { if (span) span.textContent = userExp; });
+        nextExpSpans.forEach(span => { if (span) span.textContent = nextExpThreshold; });
 
-            if (expBar) {
+        expBars.forEach(bar => {
+            if (bar) {
                 const expPercentage = (userExp / nextExpThreshold) * 100;
-                expBar.style.width = `${Math.min(expPercentage, 100)}%`;
+                bar.style.width = `${Math.min(expPercentage, 100)}%`;
             }
-        }
+        });
 
         localStorage.setItem('userLevel', userLevel);
         localStorage.setItem('userExp', userExp);
@@ -400,12 +414,12 @@ document.addEventListener('DOMContentLoaded', () => {
         while (userExp >= getExpNeededForNextLevel(userLevel)) {
             userExp -= getExpNeededForNextLevel(userLevel);
             userLevel++;
-            if (levelUpDisplayMessage) {
+            if (levelUpDisplayMessage) { // レベルアップ画面のメッセージは専用の要素を更新
                 levelUpDisplayMessage.textContent = `レベルが ${userLevel} に上がりました！`;
             }
             leveledUp = true;
         }
-        updateUserInfo();
+        updateUserInfo(); // 経験値・レベルの表示を更新
         return leveledUp;
     }
 
@@ -642,90 +656,67 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. イベントリスナーの設定
     // ======================================================
 
-    updateUserInfo();
+    updateUserInfo(); // 初期ロード時にも表示を更新
     updateDateTimeAndGreeting();
     populateAnxietyLevelSelect();
 
     // 初期表示
-    showScreen('greeting', 'none');
+    showScreen('greeting', false);
     setTimeout(() => {
-        showScreen('statusSelection', 'none');
+        showScreen('statusSelection', false);
     }, 2000);
 
-    // --- スワイプジェスチャー検出 ---
-    container.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        isSwiping = true; // スワイプ開始フラグ
-    });
-
-    container.addEventListener('touchmove', (e) => {
-        if (!isSwiping) return; // スワイプが開始されていなければ何もしない
-        touchEndX = e.touches[0].clientX;
-        
-        // オプション: ここで現在の画面をリアルタイムで動かすアニメーションを実装できる
-        // 例: const diffX = touchEndX - touchStartX;
-        //     document.querySelector('.screen.active').style.transform = `translateX(${diffX}px)`;
-        // ただし、複雑になるため、ここではアニメーションはshowScreenに任せる
-    });
-
-    container.addEventListener('touchend', () => {
-        if (!isSwiping) return;
-        const diffX = touchEndX - touchStartX;
-
-        // 右スワイプ（戻る操作）を検出
-        if (diffX > swipeThreshold) {
+    // 各画面内の「戻る」ボタンにイベントリスナーを設定
+    document.querySelectorAll('.back-btn').forEach(button => {
+        button.addEventListener('click', () => {
             if (screenHistory.length > 0) {
-                const prevScreenId = screenHistory.pop(); // 履歴から前の画面IDを取得
-                showScreen(prevScreenId, 'slide-right'); // 前の画面へ戻るアニメーション
+                const prevScreenId = screenHistory.pop();
+                showScreen(prevScreenId, true); // 戻るアクションであることを示す
+            } else {
+                // 履歴がない場合（通常は発生しないが、もしあればstatusSelectionに戻る）
+                // statusSelectionは戻るボタンが表示されないので、ここでは何もしないのが安全
+                console.log("No history to go back to. Staying on current screen or defaulting to status selection.");
             }
-        }
-        // 左スワイプ（進む操作）を検出することも可能だが、現在のアプリフローにはない
-        // else if (diffX < -swipeThreshold) {
-        //     // nextScreenId を取得して showScreen(nextScreenId, 'slide-left')
-        // }
-
-        // スワイプ変数をリセット
-        touchStartX = 0;
-        touchEndX = 0;
-        isSwiping = false; // スワイプ終了フラグ
+        });
     });
+
 
     // --- ②状況確認画面からの遷移 ---
     if (statusMorningBtn) statusMorningBtn.addEventListener('click', () => {
-        showScreen('meaningConfirmation', 'slide-left'); // 進むアニメーション
+        showScreen('meaningConfirmation');
     });
 
     if (statusEventBtn) statusEventBtn.addEventListener('click', () => {
-        showScreen('ambiguousGoal', 'slide-left'); // 進むアニメーション
+        showScreen('ambiguousGoal');
     });
 
     if (statusAnxietyBtn) statusAnxietyBtn.addEventListener('click', () => {
-        showScreen('anxietyConsultation', 'slide-left'); // 進むアニメーション
+        showScreen('anxietyConsultation');
     });
 
     if (statusOtherAppBtn) statusOtherAppBtn.addEventListener('click', () => {
-        showScreen('otherAppAccess', 'slide-left'); // 進むアニメーション
+        showScreen('otherAppAccess');
     });
 
     if (statusRestBtn) statusRestBtn.addEventListener('click', () => {
-        showScreen('rest', 'slide-left'); // 進むアニメーション
+        showScreen('rest');
     });
 
 
     // --- ③文章表示ページからの遷移 ---
     if (toValuesBtn) toValuesBtn.addEventListener('click', () => {
-        showScreen('valuesConfirmation', 'slide-left'); // 進むアニメーション
+        showScreen('valuesConfirmation');
     });
 
     if (toAmbiguousGoalBtn) toAmbiguousGoalBtn.addEventListener('click', () => {
-        showScreen('ambiguousGoal', 'slide-left'); // 進むアニメーション
+        showScreen('ambiguousGoal');
     });
 
 
     // --- ④曖昧目標ページからの遷移 ---
     if (toWeeklyProgressFromAmbiguousBtn) toWeeklyProgressFromAmbiguousBtn.addEventListener('click', () => {
         renderEventList();
-        showScreen('weeklyProgress', 'slide-left'); // 進むアニメーション
+        showScreen('weeklyProgress');
     });
 
 
@@ -733,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addNewEventBtn) addNewEventBtn.addEventListener('click', () => {
         showModal(addEventModal);
         if (modalEventNameInput) modalEventNameInput.value = '';
-        if (modalEventDeadlineInput) modalEventDeadlineInput.value = '';
+        if (modalEventDeadlineInput) modalEventDeadlineInput.value = ''; // ここを修正 (modalEventEventDeadlineInput -> modalEventDeadlineInput)
         if (modalEventAmountInput) modalEventAmountInput.value = '';
         if (modalEventNameInput) modalEventNameInput.focus();
     });
@@ -796,13 +787,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedEventDisplay) selectedEventDisplay.value = currentSelectedEvent;
         if (memoTime) memoTime.value = '';
         if (anxietyLevelSelect) anxietyLevelSelect.value = '';
-        showScreen('preTask', 'slide-left'); // 進むアニメーション
+        showScreen('preTask');
         if (anxietyLevelSelect) anxietyLevelSelect.focus();
     });
 
     if (viewProgressBtn) viewProgressBtn.addEventListener('click', () => {
         renderCompletedEvents();
-        showScreen('progressConfirmation', 'slide-left'); // 進むアニメーション
+        showScreen('progressConfirmation');
     });
 
 
@@ -828,14 +819,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let secondsElapsed = 0;
-        if (elapsedTimeCounter) elapsedTimeCounter.textContent = formatTime(secondsElapsed);
+        if (elapsedTimeCounter) elapsedTimeCounter.textContent = '00:00:00';
 
         elapsedTimeInterval = setInterval(() => {
             secondsElapsed = Math.floor((new Date() - taskStartTime) / 1000);
             if (elapsedTimeCounter) elapsedTimeCounter.textContent = formatTime(secondsElapsed);
         }, 1000);
 
-        showScreen('inTask', 'slide-left'); // 進むアニメーション
+        showScreen('inTask');
     });
 
     if (endTaskBtn) endTaskBtn.addEventListener('click', () => {
@@ -921,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModal(recordCompletedAmountModal);
 
         // 必ずprogressAnimationScreenを表示
-        showScreen('progressAnimation', 'slide-left'); // 進むアニメーション
+        showScreen('progressAnimation');
         if (progressAnimationEventName) progressAnimationEventName.textContent = `イベント: 「${eventObjectBeingCompleted.name}」`;
         if (expGainMessage) expGainMessage.textContent = `+${gainedExp} Exp獲得！`;
 
@@ -957,7 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // アニメーション完了後に次の画面へ遷移 (2.5秒後)
         setTimeout(() => {
             if (leveledUp) {
-                showScreen('levelUp', 'slide-left'); // レベルアップ画面へ (進むアニメーション)
+                showScreen('levelUp'); // レベルアップ画面へ
             } else {
                 // レベルアップしない場合はprogressAnimationScreenにとどまる
                 // ユーザーは画面上のボタンで次の行動を選択する
@@ -971,29 +962,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ⑦メッセージページ (進捗アニメーション) からの遷移 ---
     if (toRestBtnFromAnimation) toRestBtnFromAnimation.addEventListener('click', () => {
-        showScreen('rest', 'slide-left'); // 進むアニメーション
+        showScreen('rest');
     });
 
     if (toWeeklyProgressBtnFromAnimation) toWeeklyProgressBtnFromAnimation.addEventListener('click', () => {
         renderEventList(); // イベントリストを更新してから遷移
-        showScreen('weeklyProgress', 'slide-left'); // 進むアニメーション
+        showScreen('weeklyProgress');
     });
 
 
     // --- ⑧レベルアップ画面からの遷移 ---
     if (levelUpToRestBtn) levelUpToRestBtn.addEventListener('click', () => {
-        showScreen('rest', 'slide-left'); // 進むアニメーション
+        showScreen('rest');
     });
     if (levelUpToWeeklyProgressBtn) levelUpToWeeklyProgressBtn.addEventListener('click', () => {
         renderEventList(); // イベントリストを更新してから遷移
-        showScreen('weeklyProgress', 'slide-left'); // 進むアニメーション
+        showScreen('weeklyProgress');
     });
 
 
     // --- ⑩休憩ページからの遷移 ---
     if (toWeeklyProgressBtnFromRest) toWeeklyProgressBtnFromRest.addEventListener('click', () => {
         renderEventList();
-        showScreen('weeklyProgress', 'slide-left'); // 進むアニメーション
+        showScreen('weeklyProgress');
     });
 
     // ⑫別アプリページ内の選択肢ボタンのイベントリスナー
@@ -1072,9 +1063,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUserInfo();
 
         updateDateTimeAndGreeting();
-        showScreen('greeting', 'none');
+        showScreen('greeting', false);
         setTimeout(() => {
-            showScreen('statusSelection', 'none');
+            showScreen('statusSelection', false);
         }, 2000);
 
         if (notificationTimerId) {
