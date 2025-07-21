@@ -11,9 +11,6 @@ body {
     background-color: #f0f2f5;
     color: #333;
     line-height: 1.6;
-    /* display: flex; /* ★削除 */
-    /* justify-content: center; /* ★削除 */
-    /* align-items: center; /* ★削除 */
 }
 
 .container {
@@ -31,26 +28,30 @@ body {
     
     padding: 0 40px; /* 左右のパディングのみ残す */
 
-    margin: 20px auto; /* ★追加: bodyからflexを外したため、containerを中央寄せにする */
+    margin: 20px auto; /* bodyからflexを外したため、containerを中央寄せにする */
 }
 
-/* 経験値表示エリア - ビューポートの左上に固定 */
-#statusArea {
-    position: fixed;
-    top: 20px !important;
-    left: 20px !important;
+/* 経験値表示エリア - 固定ではなく、画面コンテンツの一部としてスクロール */
+/* IDからクラス名に変更 */
+.status-area {
+    /* position: fixed; top; left; z-index; !important はすべて削除 */
     text-align: left;
     font-size: 0.9em;
     color: #555;
-    z-index: 100000;
     background-color: rgba(255, 255, 255, 0.95);
     padding: 10px 16px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */ /* 影を削除 */
+    border: 1px solid #ccc; /* 枠線を追加 */
     width: 230px;
+    margin-top: 20px; /* 画面上部からの余白 */
+    margin-bottom: 20px; /* 下のコンテンツとの間に余白 */
+    box-sizing: border-box;
+    align-self: flex-start; /* .screenがflexコンテナなので、左寄せ */
 }
-#statusArea p {
+.status-area p {
     margin: 3px 0;
+    /* text-shadow: 1px 1px white; */ /* もしあれば、これも削除またはコメントアウト */
 }
 
 .exp-bar-container {
@@ -69,30 +70,6 @@ body {
     transition: width 0.5s ease;
 }
 
-
-/* グローバルな戻るボタン - ビューポートの左下に固定 */
-#global-back-button {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    
-    position: fixed;
-    bottom: 20px !important;
-    left: 20px !important;
-    z-index: 99999;
-    display: none;
-}
-#global-back-button:hover {
-    background-color: #5a6268;
-    transform: translateY(-1px);
-}
-
 /* 画面の共通スタイル */
 .screen {
     position: absolute;
@@ -102,9 +79,9 @@ body {
     height: 100%;
     
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
+    flex-direction: column; 
+    justify-content: flex-start; 
+    align-items: center; 
 
     box-sizing: border-box;
     opacity: 0;
@@ -112,11 +89,12 @@ body {
     pointer-events: none;
     background-color: #ffffff;
     
-    overflow-y: auto;
+    overflow-y: auto; /* コンテンツがはみ出た場合にスクロールを許可 */
     -ms-overflow-style: none;
     scrollbar-width: none;
 
-    padding: 100px 40px 80px; /* statusAreaとglobal-back-buttonのスペースを確保 */
+    /* global-back-buttonが固定ではなくなったので、padding-bottomを調整 */
+    padding: 20px 40px; /* 上下左右の余白を一般的な値に */
     
     z-index: 0;
     visibility: hidden;
@@ -138,7 +116,7 @@ h1 {
     color: #2c3e50;
     margin-bottom: 10px;
     font-size: 2.5em;
-    margin-top: 0;
+    margin-top: 0; 
 }
 
 h2 {
@@ -604,7 +582,7 @@ p {
 /* --- モーダルのスタイル (既存と共通) --- */
 .modal {
     display: none;
-    position: fixed;
+    position: fixed; /* モーダルは固定表示のまま */
     z-index: 10000;
     left: 0;
     top: 0;
@@ -843,13 +821,6 @@ p {
 }
 
 
-/* --- 各種ボタンのスタイル調整 --- */
-
-/* グローバルな戻るボタンに関するスタイルのみ残します。
-   以前の各画面内の戻るボタン (.back-btn) のスタイルは、HTMLから要素が削除されたため、ここも削除しています。
-*/
-
-
 /* 完了イベント履歴のスタイル */
 .completed-events-list-container {
     max-height: 300px;
@@ -911,9 +882,7 @@ p {
     }
 
     .screen {
-        padding: 20px;
-        padding-top: 90px;
-        padding-bottom: 70px;
+        padding: 15px 20px; /* 下部パディングは固定ボタン考慮なし */
     }
 
     h1 {
@@ -1006,27 +975,18 @@ p {
     }
 
     /* 経験値エリアのスマホでの調整 */
-    #statusArea {
+    .status-area {
         width: 180px;
         font-size: 12px;
         padding: 8px 12px;
-        top: 15px !important;
-        left: 15px !important;
+        margin-top: 15px; 
+        margin-bottom: 15px; 
     }
-    #statusArea p {
+    .status-area p {
         font-size: 0.8em;
     }
     .exp-bar-container {
         width: 120px;
-    }
-
-    /* グローバル戻るボタンのスマホでの調整 */
-    #global-back-button {
-        padding: 6px 12px;
-        font-size: 0.8em;
-        bottom: 15px !important;
-        left: 15px !important;
-        border-radius: 5px;
     }
 }
 
@@ -1039,9 +999,7 @@ p {
     }
 
     .screen {
-        padding: 15px;
-        padding-top: 80px;
-        padding-bottom: 60px;
+        padding: 10px 15px; /* 下部パディングは固定ボタン考慮なし */
     }
 
     h1 {
@@ -1062,24 +1020,16 @@ p {
     }
 
     /* 経験値エリアの調整 */
-    #statusArea {
+    .status-area {
         font-size: 0.75em;
         padding: 6px 10px;
-        top: 10px !important;
-        left: 10px !important;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
-    #statusArea p {
+    .status-area p {
         font-size: 0.75em;
     }
     .exp-bar-container {
         width: 100px;
-    }
-
-    /* グローバル戻るボタンの調整 */
-    #global-back-button {
-        bottom: 10px !important;
-        left: 10px !important;
-        padding: 5px 10px;
-        font-size: 0.75em;
     }
 }

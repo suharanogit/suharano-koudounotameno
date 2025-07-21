@@ -10,16 +10,6 @@
     <link rel="icon" href="You are free.png" type="image/png">
 </head>
 <body>
-    <div id="statusArea">
-        <p>レベル: <span id="currentLevel">1</span></p>
-        <p>経験値: <span id="currentExp">0</span> / <span id="nextLevelExp">100</span></p>
-        <div class="exp-bar-container">
-            <div id="expBar" class="exp-bar"></div>
-        </div>
-    </div>
-
-    <button id="global-back-button" class="action-btn back-btn">戻る</button>
-
     <div id="addEventModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-button">×</span>
@@ -51,11 +41,25 @@
 
     <div class="container">
         <div id="greetingScreen" class="screen active">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <p id="datetime"></p>
             <h1 id="greeting"></h1>
         </div>
 
         <div id="statusSelectionScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>今の状況を教えてください！</h2>
             <div class="options-grid">
                 <button id="statusMorningBtn" class="action-btn">朝、起きました...</button>
@@ -67,6 +71,13 @@
         </div>
 
         <div id="meaningConfirmationScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>この世界について、確認しましょう！</h2>
             <p>あなたの目の前にある現実は、とても冷たく残酷で、絶望が蔓延しています。</p>
             <p>「生きる意味」「本当の自分」「幸せになる方法」は存在しないし、きっといつ死んでもいいでしょう。</p>
@@ -75,9 +86,16 @@
             <p>でも、生きていると希望が湧いてきて、またすぐその希望に疑いをかけてしまいます。</p>
             <p>だから、生きる意味を見失わないために、価値観を常に意識しておきましょう。</p>
             <button id="toValuesBtn" class="action-btn next-btn">次へ</button>
-            </div>
+        </div>
 
         <div id="valuesConfirmationScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>価値観を確認しましょう</h2>
             <p>私の生きる意味は、感動するためでした。</p>
             <p>では、感動するためにどのような価値観、行動指針を掲げればよいでしょうか</p>
@@ -92,9 +110,16 @@
             <p>困難な日々を生き抜いてさえいれば、かならず人生から小さな贈り物が届きます！</p>
             <p>私は私の人生を愛しています！いってらっしゃい！</p>
             <button id="toAmbiguousGoalBtn" class="action-btn next-btn">次へ</button>
-            </div>
+        </div>
 
         <div id="ambiguousGoalScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>方向性を確認しましょう</h2>
             <div class="options-grid">
                 <div class="goal-item">
@@ -114,9 +139,16 @@
                 </div>
             </div>
             <button id="toWeeklyProgressFromAmbiguousBtn" class="action-btn next-btn">今週の目標へ</button>
-            </div>
+        </div>
 
         <div id="weeklyProgressScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>今週の目標とイベント</h2>
             
             <h3>イベントリスト</h3>
@@ -131,9 +163,16 @@
                 <button id="toPreTaskBtnFromWeekly" class="action-btn next-btn">選択したイベントを開始</button>
                 <button id="viewProgressBtn" class="action-btn">詳細進捗を確認</button>
             </div>
-            </div>
+        </div>
 
         <div id="preTaskScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>タスク前儀式</h2>
             <p>これから行うイベントについて確認しましょう。</p>
             <div class="memo-section">
@@ -147,17 +186,30 @@
                 <select id="anxietyLevelSelect"></select>
             </div>
             <button id="startTaskBtn" class="action-btn next-btn">タスク開始</button>
-            </div>
+        </div>
 
         <div id="inTaskScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>タスク実行中！</h2>
             <p>現在実行中のイベント: <span id="currentTaskDisplay" class="highlight-text"></span></p>
-            <p>集中して取り組みましょう！</p>
             <p class="elapsed-time-display">経過時間: <span id="elapsedTimeCounter">00:00:00</span></p>
-            <button id="endTaskBtn" class="action-btn next-btn">タסק終了</button>
-            </div>
+            <button id="endTaskBtn" class="action-btn next-btn">タスク終了</button>
+        </div>
 
         <div id="progressAnimationScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>お疲れ様です！</h2>
             <p id="progressAnimationEventName" class="highlight-text"></p>
             <div class="progress-animation-container">
@@ -170,9 +222,16 @@
                 <button id="toRestBtnFromAnimation" class="action-btn">少し休憩する</button>
                 <button id="toWeeklyProgressBtnFromAnimation" class="action-btn next-btn">目標を確認する</button>
             </div>
-            </div>
+        </div>
 
         <div id="levelUpScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>🎉レベルアップ！🎉</h2>
             <p id="levelUpTransitionMessage">おめでとうございます！</p>
             <p id="levelUpDisplayMessage" class="highlight-text"></p>
@@ -181,23 +240,44 @@
                 <button id="levelUpToRestBtn" class="action-btn">少し休憩する</button>
                 <button id="levelUpToWeeklyProgressBtn" class="action-btn next-btn">目標を確認する</button>
             </div>
-            </div>
+        </div>
         
         <div id="restScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>休憩中...</h2>
             <p>心と体を休めましょう。</p>
             <p>少しの間、画面から離れてリラックスしてください。</p>
             <button id="toWeeklyProgressBtnFromRest" class="action-btn next-btn">目標を確認する</button>
-            </div>
+        </div>
 
         <div id="anxietyConsultationScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>AIに相談してみましょう</h2>
             <p>PCでのご利用がおすすめです。</p>
             <p style="margin-top: 30px;">以下のリンクからChatGPTアプリを開くことができます。</p>
             <a href="chatgpt://" class="action-btn next-btn" id="openChatgptAppBtn">ChatGPTアプリを開く</a>
-            </div>
+        </div>
 
         <div id="otherAppAccessScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>他のアプリへアクセス</h2>
             <p>何にアクセスしますか？</p>
             <div class="options-grid" id="appTypeSelectionGrid">
@@ -218,9 +298,16 @@
                 <a href="https://maps.app.goo.gl/YourLocation" target="_blank" rel="noopener noreferrer" class="action-btn">Google Maps (App)</a>
                 <a href="line://msg/text/Hello%20from%20MyRitualApp!" class="action-btn">LINE (App)</a>
             </div>
-            </div>
+        </div>
 
         <div id="progressConfirmationScreen" class="screen">
+            <div class="status-area">
+                <p>レベル: <span class="current-level">1</span></p>
+                <p>経験値: <span class="current-exp">0</span> / <span class="next-level-exp">100</span></p>
+                <div class="exp-bar-container">
+                    <div class="exp-bar"></div>
+                </div>
+            </div>
             <h2>週間進捗レポート</h2>
             <p>今週完了したイベント: <span id="completedCount">0</span> 件</p>
             <p>獲得経験値合計: <span id="totalExpDisplay">0</span> Exp</p>
@@ -230,8 +317,8 @@
                 <div id="completedEventsList">
                 </div>
             </div>
-            </div>
-    </div>
+        </div>
+        </div>
 
     <script src="script.js"></script>
 </body>

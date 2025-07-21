@@ -15,23 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
         progressAnimation: document.getElementById('progressAnimationScreen'),
         anxietyConsultation: document.getElementById('anxietyConsultationScreen'),
         otherAppAccess: document.getElementById('otherAppAccessScreen'),
-        // restOrProceed: document.getElementById('restOrProceedScreen'), // HTMLでコメントアウトしたのでここもコメントアウト
         rest: document.getElementById('restScreen'),
         progressConfirmation: document.getElementById('progressConfirmationScreen'),
     };
 
-    // グローバルにアクセスするDOM要素
+    // グローバルにアクセスするDOM要素 (IDがあるもの、または汎用的なもの)
     const greetingElement = document.getElementById('greeting');
     const datetimeElement = document.getElementById('datetime');
-
-    // 経験値・レベル関連の要素
-    const currentLevelSpan = document.getElementById('currentLevel');
-    const currentExpSpan = document.getElementById('currentExp');
-    const nextLevelExpSpan = document.getElementById('nextLevelExp');
-    const expBar = document.getElementById('expBar');
-    const expGainMessage = document.getElementById('expGainMessage');
-    const levelUpTransitionMessage = document.getElementById('levelUpTransitionMessage');
-    const levelUpDisplayMessage = document.getElementById('levelUpDisplayMessage');
 
     // preTaskScreen
     const selectedEventDisplay = document.getElementById('selectedEventDisplay');
@@ -73,10 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressAnimationBar = document.getElementById('progressAnimationBar');
     const progressAnimationPercentage = document.getElementById('progressAnimationPercentage');
     const progressAnimationAmountText = document.getElementById('progressAnimationAmountText');
+    const expGainMessage = document.getElementById('expGainMessage'); 
     const toRestBtnFromAnimation = document.getElementById('toRestBtnFromAnimation');
     const toWeeklyProgressBtnFromAnimation = document.getElementById('toWeeklyProgressBtnFromAnimation');
 
-    // levelUpScreen に新しく追加したボタン
+    // levelUpScreen
+    const levelUpTransitionMessage = document.getElementById('levelUpTransitionMessage'); 
+    const levelUpDisplayMessage = document.getElementById('levelUpDisplayMessage'); 
     const levelUpToRestBtn = document.getElementById('levelUpToRestBtn');
     const levelUpToWeeklyProgressBtn = document.getElementById('levelUpToWeeklyProgressBtn');
 
@@ -103,23 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const toWeeklyProgressBtnFromRest = document.getElementById('toWeeklyProgressBtnFromRest');
 
-    // ★追加: グローバル戻るボタンのDOM要素
-    const globalBackButton = document.getElementById('global-back-button');
-
-    // ★削除: 各画面ごとの「戻る」ボタンのDOM要素はHTMLから削除されたため、ここも削除
-    // const backToStatusSelectionFromMeaningBtn = document.getElementById('backToStatusSelectionFromMeaningBtn');
-    // const backToMeaningBtn = document.getElementById('backToMeaningBtn');
-    // const backToValuesBtn = document.getElementById('backToValuesBtn');
-    // const backToStatusSelectionFromWeeklyBtn = document.getElementById('backToStatusSelectionFromWeeklyBtn');
-    // const backToWeeklyFromPreTaskBtn = document.getElementById('backToWeeklyFromPreTaskBtn');
-    // const backToWeeklyProgressBtnFromProgress = document.getElementById('backToWeeklyProgressBtnFromProgress');
-    // const backToStatusSelectionFromRestBtn = document.getElementById('backToStatusSelectionFromRestBtn');
-    // const backToStatusSelectionFromAnxietyBtn = document.getElementById('backToStatusSelectionFromAnxietyBtn');
-    // const backToStatusSelectionFromOtherAppBtn = document.getElementById('backToStatusSelectionFromOtherAppBtn');
-    // const backToStatusSelectionFromInTaskBtn = document.getElementById('backToStatusSelectionFromInTaskBtn');
-    // const backToStatusSelectionFromAnimationBtn = document.getElementById('backToStatusSelectionFromAnimationBtn');
-    // const backToStatusSelectionFromLevelUpBtn = document.getElementById('backToStatusSelectionFromLevelUpBtn');
-
+    // ★変更: globalBackButtonは各画面内に配置されるので、直接の取得は不要。
+    // イベントデリゲーションで処理するか、showScreen内で動的に取得する。
+    // const globalBackButton = document.getElementById('global-back-button'); // この行は削除
 
     // アプリケーションの状態変数
     let userLevel = parseInt(localStorage.getItem('userLevel')) || 1;
@@ -132,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let elapsedTimeInterval = null;
     let notificationTimerId = null; // 通知タイマーのID
 
-    // ★追加: 画面履歴を保存する配列
+    // 画面履歴を保存する配列
     let screenHistory = [];
     let currentScreenId = ''; // 現在表示されている画面のID
 
@@ -174,8 +153,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function showScreen(screenId, isBackAction = false) {
         Object.values(screens).forEach(screen => {
             screen.classList.remove('active');
-            // 非アクティブな画面は完全に非表示にする
-            screen.style.visibility = 'hidden'; 
+            screen.style.visibility = 'hidden';
+
+            // 非アクティブな画面のstatus-areaとglobal-back-buttonを非表示にする
+            const inactiveStatusArea = screen.querySelector('.status-area');
+            if (inactiveStatusArea) inactiveStatusArea.style.display = 'none';
+            
+            const inactiveBackButton = screen.querySelector('.global-back-button');
+            if (inactiveBackButton) inactiveBackButton.style.display = 'none';
         });
 
         // アクティブな画面を表示
@@ -185,8 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 画面が切り替わったときに最上部にスクロール
         targetScreen.scrollTop = 0; // ターゲット画面自体をスクロール
-        document.body.scrollTop = 0; // bodyのスクロールをリセット
-        document.documentElement.scrollTop = 0; // htmlのスクロールをリセット
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
 
         // ★履歴管理ロジック
         if (!isBackAction) { // 戻るアクションでない場合のみ履歴に追加
@@ -196,13 +181,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         currentScreenId = screenId; // 現在の画面を更新
 
-        // ★グローバル戻るボタンの表示/非表示制御
-        // 戻るボタンを非表示にする画面のIDを配列で管理 (例: 最初の挨拶画面、状況選択画面)
-        const screensWithoutBackButton = ['greeting', 'statusSelection']; 
-        if (screensWithoutBackButton.includes(screenId)) {
-            globalBackButton.style.display = 'none';
-        } else {
-            globalBackButton.style.display = 'block'; // または 'inline-block'
+        // ★各画面内のglobal-back-buttonとstatus-areaの表示/非表示制御
+        const globalBackButtonInCurrentScreen = targetScreen.querySelector('.global-back-button');
+        const statusAreaInCurrentScreen = targetScreen.querySelector('.status-area');
+
+        const screensWithoutBackButton = ['greeting', 'statusSelection'];
+        if (globalBackButtonInCurrentScreen) { // ボタン要素が存在するか確認
+            if (screensWithoutBackButton.includes(screenId)) {
+                globalBackButtonInCurrentScreen.style.display = 'none';
+            } else {
+                globalBackButtonInCurrentScreen.style.display = 'block'; // または 'inline-block'
+            }
+        }
+        
+        // statusAreaは常に表示したいので、blockにする
+        if (statusAreaInCurrentScreen) {
+            statusAreaInCurrentScreen.style.display = 'block';
         }
 
         // タスク実行画面以外に遷移したらタイマーを停止・リセット
@@ -229,6 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (researchAppsSection) researchAppsSection.style.display = 'none';
             if (otherAppsSection) otherAppsSection.style.display = 'none';
         }
+
+        // 経験値・レベルの表示を更新 (新しい画面に切り替わった後に表示を更新するため)
+        updateUserInfo();
     }
 
     /**
@@ -242,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const minutes = now.getMinutes().toString().padStart(2, '0');
         const weekday = ["日", "月", "火", "水", "木", "金", "土"][now.getDay()];
 
-        datetimeElement.textContent = `${month}月${day}日(${weekday}) ${hours}時${minutes}分です`;
+        if (datetimeElement) datetimeElement.textContent = `${month}月${day}日(${weekday}) ${hours}時${minutes}分です`;
 
         const hour = now.getHours();
         const currentMinutes = now.getMinutes();
@@ -256,13 +253,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             greeting = `${userName}！こんばんは！`;
         }
-        greetingElement.textContent = greeting;
+        if (greetingElement) greetingElement.textContent = greeting;
     }
 
     /**
      * ドロップダウンリストのオプションを生成する
      */
     function populateAnxietyLevelSelect() {
+        if (!anxietyLevelSelect) return;
         anxietyLevelSelect.innerHTML = '<option value="">選択してください</option>';
         for (let i = 0; i <= 10; i++) {
             const option = document.createElement('option');
@@ -319,16 +317,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * ユーザーのレベルと経験値を更新し、表示を更新する
+     * ★変更: 現在アクティブな画面内の要素を操作するように修正
      */
     function updateUserInfo() {
         const nextExpThreshold = getExpNeededForNextLevel(userLevel);
 
-        currentLevelSpan.textContent = userLevel;
-        currentExpSpan.textContent = userExp;
-        nextLevelExpSpan.textContent = nextExpThreshold;
+        // 現在アクティブな画面の status-area を取得
+        const activeScreen = document.querySelector('.screen.active');
+        if (activeScreen) {
+            const currentLevelSpan = activeScreen.querySelector('.current-level');
+            const currentExpSpan = activeScreen.querySelector('.current-exp');
+            const nextLevelExpSpan = activeScreen.querySelector('.next-level-exp');
+            const expBar = activeScreen.querySelector('.exp-bar');
 
-        const expPercentage = (userExp / nextExpThreshold) * 100;
-        expBar.style.width = `${Math.min(expPercentage, 100)}%`;
+            if (currentLevelSpan) currentLevelSpan.textContent = userLevel;
+            if (currentExpSpan) currentExpSpan.textContent = userExp;
+            if (nextLevelExpSpan) nextLevelExpSpan.textContent = nextExpThreshold;
+
+            if (expBar) {
+                const expPercentage = (userExp / nextExpThreshold) * 100;
+                expBar.style.width = `${Math.min(expPercentage, 100)}%`;
+            }
+        }
 
         localStorage.setItem('userLevel', userLevel);
         localStorage.setItem('userExp', userExp);
@@ -345,7 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
         while (userExp >= getExpNeededForNextLevel(userLevel)) {
             userExp -= getExpNeededForNextLevel(userLevel);
             userLevel++;
-            levelUpDisplayMessage.textContent = `レベルが ${userLevel} に上がりました！`;
+            if (levelUpDisplayMessage) {
+                levelUpDisplayMessage.textContent = `レベルが ${userLevel} に上がりました！`;
+            }
             leveledUp = true;
         }
         updateUserInfo();
@@ -418,13 +430,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * weeklyProgressScreenでは未完了のイベントのみ表示
      */
     function renderEventList() {
+        if (!eventListContainer) return;
+
         eventListContainer.innerHTML = '';
 
         const incompleteEvents = userEvents.filter(event => !event.completed);
 
         if (incompleteEvents.length === 0) {
             eventListContainer.innerHTML = '<p style="color:#666; font-size:0.9em; text-align:center; padding: 20px 0;">未完了のイベントはありません。<br>「＋新しいイベントを追加」で作成しましょう。</p>';
-            toPreTaskBtnFromWeekly.style.display = 'none';
+            if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'none';
             currentSelectedEvent = null;
         } else {
             incompleteEvents.forEach((eventObj, index) => {
@@ -477,12 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     radioButton.checked = true;
                     currentSelectedEvent = eventObj.name;
                     highlightSelectedEvent(eventItem);
-                    toPreTaskBtnFromWeekly.style.display = 'block';
+                    if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'block';
                 });
                 radioButton.addEventListener('change', () => {
                     currentSelectedEvent = eventObj.name;
                     highlightSelectedEvent(eventItem);
-                    toPreTaskBtnFromWeekly.style.display = 'block';
+                    if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'block';
                 });
             });
 
@@ -490,13 +504,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedRadio = eventListContainer.querySelector(`input[value="${currentSelectedEvent}"]`);
                 if (selectedRadio && selectedRadio.closest('.event-item')) {
                     highlightSelectedEvent(selectedRadio.closest('.event-item'));
-                    toPreTaskBtnFromWeekly.style.display = 'block';
+                    if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'block';
                 } else {
                     currentSelectedEvent = null;
-                    toPreTaskBtnFromWeekly.style.display = 'none';
+                    if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'none';
                 }
             } else {
-                toPreTaskBtnFromWeekly.style.display = 'none';
+                if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.style.display = 'none';
             }
         }
     }
@@ -518,6 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * 完了済みイベントリストを表示する (進捗確認画面用)
      */
     function renderCompletedEvents() {
+        if (!completedEventsList) return;
+
         completedEventsList.innerHTML = '';
         const completed = userEvents.filter(event => event.completed);
 
@@ -555,23 +571,25 @@ document.addEventListener('DOMContentLoaded', () => {
             completedEventsList.appendChild(eventItem);
         });
 
-        completedCountSpan.textContent = completed.length;
-        totalExpDisplaySpan.textContent = totalExpEarned;
+        if (completedCountSpan) completedCountSpan.textContent = completed.length;
+        if (totalExpDisplaySpan) totalExpDisplaySpan.textContent = totalExpEarned;
     }
 
     // モーダルの表示・非表示を管理する関数
     function showModal(modalElement) {
-        modalElement.style.display = 'flex'; // Flexboxで表示
+        if (!modalElement) return;
+        modalElement.style.display = 'flex';
         setTimeout(() => {
             modalElement.classList.add('active');
-        }, 10); // 短い遅延
+        }, 10);
     }
 
     function hideModal(modalElement) {
+        if (!modalElement) return;
         modalElement.classList.remove('active');
         setTimeout(() => {
             modalElement.style.display = 'none';
-        }, 300); // CSSのtransition時間 (0.3s) と合わせる
+        }, 300);
     }
 
 
@@ -584,75 +602,78 @@ document.addEventListener('DOMContentLoaded', () => {
     populateAnxietyLevelSelect();
 
     // 初期表示
-    showScreen('greeting', false); // 初回は履歴に追加しない
+    showScreen('greeting', false);
     setTimeout(() => {
-        showScreen('statusSelection', false); // 2秒後にステータス選択画面へ（これも履歴に追加しない）
+        showScreen('statusSelection', false);
     }, 2000);
 
-    // ★グローバル戻るボタンのイベントリスナー
-    globalBackButton.addEventListener('click', () => {
-        if (screenHistory.length > 0) {
-            const prevScreenId = screenHistory.pop(); // 履歴から前の画面IDを取得
-            showScreen(prevScreenId, true); // 前の画面へ戻る (isBackAction = true)
-        } else {
-            // 履歴がない場合（通常は発生しないはずだが、念のため初期画面に戻す）
-            showScreen('statusSelection', true); 
+    // ★グローバル戻るボタンのイベントリスナー（イベントデリゲーションで処理）
+    // .container内のクリックイベントを監視し、もしクリックされた要素が.global-back-buttonなら処理を実行
+    document.querySelector('.container').addEventListener('click', (event) => {
+        if (event.target.classList.contains('global-back-button')) {
+            if (screenHistory.length > 0) {
+                const prevScreenId = screenHistory.pop(); // 履歴から前の画面IDを取得
+                showScreen(prevScreenId, true); // 前の画面へ戻る (isBackAction = true)
+            } else {
+                // 履歴がない場合（通常は発生しないはずだが、念のため初期画面に戻す）
+                showScreen('statusSelection', true);
+            }
         }
     });
 
     // --- ②状況確認画面からの遷移 ---
-    statusMorningBtn.addEventListener('click', () => {
+    if (statusMorningBtn) statusMorningBtn.addEventListener('click', () => {
         showScreen('meaningConfirmation');
     });
 
-    statusEventBtn.addEventListener('click', () => {
+    if (statusEventBtn) statusEventBtn.addEventListener('click', () => {
         showScreen('ambiguousGoal');
     });
 
-    statusAnxietyBtn.addEventListener('click', () => {
+    if (statusAnxietyBtn) statusAnxietyBtn.addEventListener('click', () => {
         showScreen('anxietyConsultation');
     });
 
-    statusOtherAppBtn.addEventListener('click', () => {
+    if (statusOtherAppBtn) statusOtherAppBtn.addEventListener('click', () => {
         showScreen('otherAppAccess');
     });
 
-    statusRestBtn.addEventListener('click', () => {
+    if (statusRestBtn) statusRestBtn.addEventListener('click', () => {
         showScreen('rest');
     });
 
 
     // --- ③文章表示ページからの遷移 ---
-    toValuesBtn.addEventListener('click', () => {
+    if (toValuesBtn) toValuesBtn.addEventListener('click', () => {
         showScreen('valuesConfirmation');
     });
 
-    toAmbiguousGoalBtn.addEventListener('click', () => {
+    if (toAmbiguousGoalBtn) toAmbiguousGoalBtn.addEventListener('click', () => {
         showScreen('ambiguousGoal');
     });
 
 
     // --- ④曖昧目標ページからの遷移 ---
-    toWeeklyProgressFromAmbiguousBtn.addEventListener('click', () => {
+    if (toWeeklyProgressFromAmbiguousBtn) toWeeklyProgressFromAmbiguousBtn.addEventListener('click', () => {
         renderEventList();
         showScreen('weeklyProgress');
     });
 
 
     // --- ⑤イベント管理ページ (リスト表示部分)でのイベント操作 ---
-    addNewEventBtn.addEventListener('click', () => {
+    if (addNewEventBtn) addNewEventBtn.addEventListener('click', () => {
         showModal(addEventModal);
-        modalEventNameInput.value = '';
-        modalEventDeadlineInput.value = '';
-        modalEventAmountInput.value = '';
-        modalEventNameInput.focus();
+        if (modalEventNameInput) modalEventNameInput.value = '';
+        if (modalEventDeadlineInput) modalEventDeadlineInput.value = '';
+        if (modalEventAmountInput) modalEventAmountInput.value = '';
+        if (modalEventNameInput) modalEventNameInput.focus();
     });
 
-    closeModalButton.addEventListener('click', () => {
+    if (closeModalButton) closeModalButton.addEventListener('click', () => {
         hideModal(addEventModal);
     });
 
-    closeRecordModalButton.addEventListener('click', () => {
+    if (closeRecordModalButton) closeRecordModalButton.addEventListener('click', () => {
         hideModal(recordCompletedAmountModal);
     });
 
@@ -665,10 +686,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    saveEventBtn.addEventListener('click', () => {
-        const eventName = modalEventNameInput.value.trim();
-        const eventDeadline = modalEventDeadlineInput.value;
-        const eventAmount = modalEventAmountInput.value.trim();
+    if (saveEventBtn) saveEventBtn.addEventListener('click', () => {
+        const eventName = modalEventNameInput ? modalEventNameInput.value.trim() : '';
+        const eventDeadline = modalEventDeadlineInput ? modalEventDeadlineInput.value : '';
+        const eventAmount = modalEventAmountInput ? modalEventAmountInput.value.trim() : '';
         const parsedEventAmount = parseAmountString(eventAmount);
 
         if (!eventName) {
@@ -698,27 +719,27 @@ document.addEventListener('DOMContentLoaded', () => {
         hideModal(addEventModal);
     });
 
-    toPreTaskBtnFromWeekly.addEventListener('click', () => {
+    if (toPreTaskBtnFromWeekly) toPreTaskBtnFromWeekly.addEventListener('click', () => {
         if (!currentSelectedEvent) {
             alert('イベントを選択してください！');
             return;
         }
-        selectedEventDisplay.value = currentSelectedEvent;
-        memoTime.value = '';
-        anxietyLevelSelect.value = '';
+        if (selectedEventDisplay) selectedEventDisplay.value = currentSelectedEvent;
+        if (memoTime) memoTime.value = '';
+        if (anxietyLevelSelect) anxietyLevelSelect.value = '';
         showScreen('preTask');
-        anxietyLevelSelect.focus();
+        if (anxietyLevelSelect) anxietyLevelSelect.focus();
     });
 
-    viewProgressBtn.addEventListener('click', () => {
+    if (viewProgressBtn) viewProgressBtn.addEventListener('click', () => {
         renderCompletedEvents();
         showScreen('progressConfirmation');
     });
 
 
-    startTaskBtn.addEventListener('click', () => {
-        const anxietyValue = anxietyLevelSelect.value;
-        const predictedTime = parseFloat(memoTime.value);
+    if (startTaskBtn) startTaskBtn.addEventListener('click', () => {
+        const anxietyValue = anxietyLevelSelect ? anxietyLevelSelect.value : '';
+        const predictedTime = memoTime ? parseFloat(memoTime.value) : 0;
 
         if (!anxietyValue || anxietyValue === "") {
             alert('抵抗感を選択してください！');
@@ -730,7 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         selectedAnxietyLevel = parseInt(anxietyValue);
-        currentTaskDisplay.textContent = currentSelectedEvent;
+        if (currentTaskDisplay) currentTaskDisplay.textContent = currentSelectedEvent;
         taskStartTime = new Date();
 
         if (elapsedTimeInterval) {
@@ -738,17 +759,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let secondsElapsed = 0;
-        elapsedTimeCounter.textContent = formatTime(secondsElapsed);
+        if (elapsedTimeCounter) elapsedTimeCounter.textContent = formatTime(secondsElapsed);
 
         elapsedTimeInterval = setInterval(() => {
             secondsElapsed = Math.floor((new Date() - taskStartTime) / 1000);
-            elapsedTimeCounter.textContent = formatTime(secondsElapsed);
+            if (elapsedTimeCounter) elapsedTimeCounter.textContent = formatTime(secondsElapsed);
         }, 1000);
 
         showScreen('inTask');
     });
 
-    endTaskBtn.addEventListener('click', () => {
+    if (endTaskBtn) endTaskBtn.addEventListener('click', () => {
         if (!taskStartTime) {
             alert("エラー: タスク開始時刻が記録されていません。");
             return;
@@ -763,14 +784,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const elapsedTimeMinutes = Math.round(elapsedTimeMs / (1000 * 60));
 
         showModal(recordCompletedAmountModal);
-        completedAmountEventNameDisplay.textContent = `イベント: 「${currentSelectedEvent}」`;
-        modalCompletedAmountInput.value = '';
-        modalCompletedAmountInput.focus();
+        if (completedAmountEventNameDisplay) completedAmountEventNameDisplay.textContent = `イベント: 「${currentSelectedEvent}」`;
+        if (modalCompletedAmountInput) modalCompletedAmountInput.value = '';
+        if (modalCompletedAmountInput) modalCompletedAmountInput.focus();
 
         const eventToUpdateIndex = userEvents.findIndex(event => event.name === currentSelectedEvent && !event.completed);
         if (eventToUpdateIndex !== -1) {
             eventObjectBeingCompleted = userEvents[eventToUpdateIndex];
-            eventObjectBeingCompleted.predictedTimeMinutes = parseFloat(memoTime.value);
+            eventObjectBeingCompleted.predictedTimeMinutes = parseFloat(memoTime ? memoTime.value : 0);
             eventObjectBeingCompleted.actualElapsedTimeMinutes = elapsedTimeMinutes;
         } else {
             console.error("完了しようとしているイベントが見つかりません。");
@@ -778,8 +799,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    saveCompletedAmountBtn.addEventListener('click', () => {
-        const currentInputAmountStr = modalCompletedAmountInput.value.trim();
+    if (saveCompletedAmountBtn) saveCompletedAmountBtn.addEventListener('click', () => {
+        const currentInputAmountStr = modalCompletedAmountInput ? modalCompletedAmountInput.value.trim() : '';
         const currentInputAmountNum = parseAmountString(currentInputAmountStr);
 
         if (currentInputAmountNum <= 0) {
@@ -823,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
             eventObjectBeingCompleted.completedDate = new Date().toISOString().split('T')[0];
         } else {
             // タスクが未完了の場合でも、獲得経験値を加算し続ける
-            eventObjectBeingCompleted.gainedExp += gainedExp; 
+            eventObjectBeingCompleted.gainedExp += gainedExp;
         }
 
         saveUserEvents();
@@ -832,8 +853,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 必ずprogressAnimationScreenを表示
         showScreen('progressAnimation');
-        progressAnimationEventName.textContent = `イベント: 「${eventObjectBeingCompleted.name}」`;
-        expGainMessage.textContent = `+${gainedExp} Exp獲得！`;
+        if (progressAnimationEventName) progressAnimationEventName.textContent = `イベント: 「${eventObjectBeingCompleted.name}」`;
+        if (expGainMessage) expGainMessage.textContent = `+${gainedExp} Exp獲得！`;
 
         let currentProgress = 0;
         if (eventObjectBeingCompleted.parsedAmount > 0) {
@@ -843,22 +864,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // アニメーションの初期化
-        progressAnimationBar.style.width = '0%';
-        progressAnimationPercentage.textContent = '0%';
-        progressAnimationAmountText.textContent = `完了: ${eventObjectBeingCompleted.completedAmount || '0'} / 目標: ${eventObjectBeingCompleted.amount || 'なし'}`;
+        if (progressAnimationBar) progressAnimationBar.style.width = '0%';
+        if (progressAnimationPercentage) progressAnimationPercentage.textContent = '0%';
+        if (progressAnimationAmountText) progressAnimationAmountText.textContent = `完了: ${eventObjectBeingCompleted.completedAmount || '0'} / 目標: ${eventObjectBeingCompleted.amount || 'なし'}`;
 
         // 少し遅延させてアニメーションを開始
         setTimeout(() => {
-            progressAnimationBar.style.width = `${Math.min(currentProgress, 100)}%`;
-            progressAnimationPercentage.textContent = `${Math.round(currentProgress)}%`;
+            if (progressAnimationBar) progressAnimationBar.style.width = `${Math.min(currentProgress, 100)}%`;
+            if (progressAnimationPercentage) progressAnimationPercentage.textContent = `${Math.round(currentProgress)}%`;
 
             // プログレスバーの色変更
-            if (currentProgress >= 100) {
-                progressAnimationBar.style.backgroundColor = '#28a745'; // 完了色
-            } else if (currentProgress > 0) {
-                progressAnimationBar.style.backgroundColor = '#007bff'; // 進行中色
-            } else {
-                progressAnimationBar.style.backgroundColor = '#ffc107'; // 未開始色
+            if (progressAnimationBar) {
+                if (currentProgress >= 100) {
+                    progressAnimationBar.style.backgroundColor = '#28a745'; // 完了色
+                } else if (currentProgress > 0) {
+                    progressAnimationBar.style.backgroundColor = '#007bff'; // 進行中色
+                } else {
+                    progressAnimationBar.style.backgroundColor = '#ffc107'; // 未開始色
+                }
             }
         }, 100); // 短いディレイでアニメーション開始
 
@@ -878,44 +901,60 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- ⑦メッセージページ (進捗アニメーション) からの遷移 ---
-    toRestBtnFromAnimation.addEventListener('click', () => {
+    if (toRestBtnFromAnimation) toRestBtnFromAnimation.addEventListener('click', () => {
         showScreen('rest');
     });
 
-    toWeeklyProgressBtnFromAnimation.addEventListener('click', () => {
+    if (toWeeklyProgressBtnFromAnimation) toWeeklyProgressBtnFromAnimation.addEventListener('click', () => {
         renderEventList(); // イベントリストを更新してから遷移
         showScreen('weeklyProgress');
     });
 
 
     // --- ⑧レベルアップ画面からの遷移 ---
-    levelUpToRestBtn.addEventListener('click', () => {
-        showScreen('restScreen');
+    if (levelUpToRestBtn) levelUpToRestBtn.addEventListener('click', () => {
+        showScreen('rest');
     });
-    levelUpToWeeklyProgressBtn.addEventListener('click', () => {
+    if (levelUpToWeeklyProgressBtn) levelUpToWeeklyProgressBtn.addEventListener('click', () => {
         renderEventList(); // イベントリストを更新してから遷移
         showScreen('weeklyProgress');
     });
 
 
     // --- ⑩休憩ページからの遷移 ---
-    toWeeklyProgressBtnFromRest.addEventListener('click', () => {
+    if (toWeeklyProgressBtnFromRest) toWeeklyProgressBtnFromRest.addEventListener('click', () => {
         renderEventList();
         showScreen('weeklyProgress');
     });
 
     // ⑫別アプリページ内の選択肢ボタンのイベントリスナー
-    accessResearchBtn.addEventListener('click', () => {
+    if (accessResearchBtn) accessResearchBtn.addEventListener('click', () => {
         if (appTypeSelectionGrid) appTypeSelectionGrid.style.display = 'none';
         if (researchAppsSection) researchAppsSection.style.display = 'grid';
         if (otherAppsSection) otherAppsSection.style.display = 'none';
     });
 
-    accessOtherAppBtn.addEventListener('click', async () => {
+    if (accessOtherAppBtn) accessOtherAppBtn.addEventListener('click', async () => {
         if (appTypeSelectionGrid) appTypeSelectionGrid.style.display = 'none';
         if (researchAppsSection) researchAppsSection.style.display = 'none';
         if (otherAppsSection) otherAppsSection.style.display = 'grid';
 
+        // 広島の現在時刻を取得（ユーザーの現在のタイムゾーンに依存）
+        const now = new Date();
+        const options = {
+            timeZone: 'Asia/Tokyo',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        const localDateTime = new Intl.DateTimeFormat('ja-JP', options).format(now);
+        console.log(`現在の広島の時刻: ${localDateTime}`);
+
+        // 通知のロジック
         if (Notification.permission === 'default') {
             const permission = await Notification.requestPermission();
             if (permission !== 'granted') {
@@ -952,21 +991,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalEventDeadlineInput) modalEventDeadlineInput.value = '';
         if (modalEventAmountInput) modalEventAmountInput.value = '';
         if (modalCompletedAmountInput) modalCompletedAmountInput.value = '';
-        memoTime.value = '';
-        anxietyLevelSelect.value = '';
+        if (memoTime) memoTime.value = '';
+        if (anxietyLevelSelect) anxietyLevelSelect.value = '';
         currentSelectedEvent = null;
         taskStartTime = null;
         eventObjectBeingCompleted = null;
         renderEventList();
 
-        expGainMessage.textContent = '';
-        levelUpDisplayMessage.textContent = '';
+        if (expGainMessage) expGainMessage.textContent = '';
+        if (levelUpDisplayMessage) levelUpDisplayMessage.textContent = '';
         updateUserInfo();
 
         updateDateTimeAndGreeting();
-        showScreen('greeting');
+        showScreen('greeting', false);
         setTimeout(() => {
-            showScreen('statusSelection');
+            showScreen('statusSelection', false);
         }, 2000);
 
         if (notificationTimerId) {
